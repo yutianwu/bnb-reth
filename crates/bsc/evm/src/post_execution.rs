@@ -163,7 +163,6 @@ where
                 BscBlockExecutionError::ParliaConsensusInnerError { error: err.into() }
             })?
         {
-
             let turn_length_from_contract = self.get_turn_length(header, env.clone())?.unwrap();
             if turn_length_from_header == turn_length_from_contract {
                 return Ok(())

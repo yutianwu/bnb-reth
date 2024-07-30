@@ -891,9 +891,9 @@ where
                     })?;
 
                 let turn_length =
-                    self.parlia.get_turn_length_from_header(&checkpoint_header).map_err(|err|
-                        BscBlockExecutionError::ParliaConsensusInnerError { error: err.into(), }
-                    )?;
+                    self.parlia.get_turn_length_from_header(&checkpoint_header).map_err(|err| {
+                        BscBlockExecutionError::ParliaConsensusInnerError { error: err.into() }
+                    })?;
 
                 (validators_info, turn_length)
             } else {

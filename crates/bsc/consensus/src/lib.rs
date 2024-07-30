@@ -181,8 +181,13 @@ impl Parlia {
         }
     }
 
-    pub fn get_turn_length_from_header(&self, header: &Header) -> Result<Option<u8>, ParliaConsensusError> {
-        if header.number % self.epoch != 0 || !self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) {
+    pub fn get_turn_length_from_header(
+        &self,
+        header: &Header,
+    ) -> Result<Option<u8>, ParliaConsensusError> {
+        if header.number % self.epoch != 0 ||
+            !self.chain_spec.is_bohr_active_at_timestamp(header.timestamp)
+        {
             return Ok(None);
         }
 
@@ -222,7 +227,8 @@ impl Parlia {
         } else {
             let validator_count =
                 header.extra_data[EXTRA_VANITY_LEN_WITH_VALIDATOR_NUM - 1] as usize;
-            let mut start = EXTRA_VANITY_LEN_WITH_VALIDATOR_NUM + validator_count * EXTRA_VALIDATOR_LEN;
+            let mut start =
+                EXTRA_VANITY_LEN_WITH_VALIDATOR_NUM + validator_count * EXTRA_VALIDATOR_LEN;
             let is_bohr_active = self.chain_spec.is_bohr_active_at_timestamp(header.timestamp);
             if is_bohr_active {
                 start += TURN_LEN;
@@ -509,7 +515,8 @@ impl Parlia {
 
         if self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) {
             if header.parent_beacon_block_root.is_none() ||
-                header.parent_beacon_block_root.unwrap() != B256::default() {
+                header.parent_beacon_block_root.unwrap() != B256::default()
+            {
                 return Err(ConsensusError::ParentBeaconBlockRootUnexpected)
             }
         } else if header.parent_beacon_block_root.is_some() {
