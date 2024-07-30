@@ -321,7 +321,7 @@ mod tests {
     use super::*;
     use rand::Rng;
     use reth_primitives::{
-        parlia::{ValidatorInfo, VoteAddress, VoteData},
+        parlia::{ValidatorInfo, VoteAddress, VoteData, DEFAULT_TURN_LENGTH},
         Account, Header, Receipt, ReceiptWithBloom, SealedHeader, TxEip1559, TxEip2930, TxEip4844,
         TxLegacy, Withdrawals,
     };
@@ -332,7 +332,6 @@ mod tests {
         StorageHashingCheckpoint,
     };
     use std::collections::{BTreeMap, HashMap};
-    use reth_primitives::parlia::DEFAULT_TURN_LENGTH;
 
     // each value in the database has an extra field named flags that encodes metadata about other
     // fields in the value, e.g. offset and length.

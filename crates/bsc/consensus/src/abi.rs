@@ -6003,7 +6003,8 @@ impl Parlia {
     }
 
     pub fn get_turn_length(&self) -> (Address, Bytes) {
-        let function = self.validator_abi.function("getTurnLength").unwrap().first().unwrap();
+        let function =
+            self.validator_abi.function("getTurnLength").unwrap().first().unwrap();
 
         (VALIDATOR_CONTRACT.parse().unwrap(), Bytes::from(function.abi_encode_input(&[]).unwrap()))
     }

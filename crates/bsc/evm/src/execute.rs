@@ -17,7 +17,7 @@ use reth_evm::{
     ConfigureEvm,
 };
 use reth_primitives::{
-    parlia::{ParliaConfig, Snapshot, VoteAddress, CHECKPOINT_INTERVAL},
+    parlia::{ParliaConfig, Snapshot, VoteAddress, CHECKPOINT_INTERVAL, DEFAULT_TURN_LENGTH},
     system_contracts::{get_upgrade_system_contracts, SLASH_CONTRACT},
     Address, BlockNumber, BlockWithSenders, Bytes, Header, Receipt, Transaction, TransactionSigned,
     B256, BSC_MAINNET, U256,
@@ -35,7 +35,6 @@ use revm_primitives::{
 };
 use std::{collections::HashMap, num::NonZeroUsize, sync::Arc, time::Instant};
 use tracing::{debug, warn};
-use reth_primitives::parlia::DEFAULT_TURN_LENGTH;
 
 const SNAP_CACHE_NUM: usize = 2048;
 
@@ -878,15 +877,23 @@ where
         skip_headers.reverse();
         for header in &skip_headers {
             let (ValidatorsInfo { consensus_addrs, vote_addrs }, turn_length) = if header.number > 0 &&
-                header.number % self.parlia.epoch() == snap.miner_history_check_len() {
+                header.number % self.parlia.epoch() == snap.miner_history_check_len()
+            {
                 // change validator set
-                let checkpoint_header = self.find_ancient_header(header, snap.miner_history_check_len())?;
+                let checkpoint_header =
+                    self.find_ancient_header(header, snap.miner_history_check_len())?;
 
-                let validators_info = self.parlia.parse_validators_from_header(&checkpoint_header)
-                    .map_err(|err| BscBlockExecutionError::ParliaConsensusInnerError { error: err.into() })?;
+                let validators_info = self
+                    .parlia
+                    .parse_validators_from_header(&checkpoint_header)
+                    .map_err(|err| BscBlockExecutionError::ParliaConsensusInnerError {
+                        error: err.into(),
+                    })?;
 
-                let turn_length = self.parlia.get_turn_length_from_header(&checkpoint_header)
-                    .map_err(|err| BscBlockExecutionError::ParliaConsensusInnerError { error: err.into() })?;
+                let turn_length =
+                    self.parlia.get_turn_length_from_header(&checkpoint_header).map_err(|err|
+                        BscBlockExecutionError::ParliaConsensusInnerError { error: err.into(), }
+                    )?;
 
                 (validators_info, turn_length)
             } else {
@@ -902,8 +909,15 @@ where
                 })?;
 
             snap = snap
-                .apply(validator, header, consensus_addrs, vote_addrs, attestation,
-                       turn_length, self.parlia.chain_spec().is_bohr_active_at_timestamp(header.timestamp))
+                .apply(
+                    validator,
+                    header,
+                    consensus_addrs,
+                    vote_addrs,
+                    attestation,
+                    turn_length,
+                    self.parlia.chain_spec().is_bohr_active_at_timestamp(header.timestamp),
+                )
                 .ok_or_else(|| BscBlockExecutionError::ApplySnapshotFailed)?;
         }
 

@@ -96,7 +96,7 @@ pub static BSC_RIALTO: Lazy<Arc<ChainSpec>> = Lazy::new(|| {
         base_fee_params: BaseFeeParamsKind::Constant(BaseFeeParams::new(1, 1)),
         prune_delete_limit: 3500,
     }
-        .into()
+    .into()
 });
 
 /// The Ethereum mainnet spec

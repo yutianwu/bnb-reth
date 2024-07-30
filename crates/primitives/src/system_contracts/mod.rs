@@ -5,7 +5,7 @@ use crate::{hex, Address, BlockNumber};
 use alloy_chains::Chain;
 use include_dir::{include_dir, Dir};
 use lazy_static::lazy_static;
-use reth_chainspec::{ChainSpec, BSC_MAINNET, BSC_TESTNET, BSC_RIALTO};
+use reth_chainspec::{ChainSpec, BSC_MAINNET, BSC_RIALTO, BSC_TESTNET};
 use reth_ethereum_forks::BscHardfork;
 use revm_primitives::Bytecode;
 use std::collections::HashMap;

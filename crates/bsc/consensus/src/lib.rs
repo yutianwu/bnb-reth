@@ -312,10 +312,12 @@ impl Parlia {
             validators.retain(|addr| !snap.sign_recently_by_counts(*addr, &counts));
         }
 
-        let mut rng = RngSource::new(snap.block_number as i64);
-        if self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) {
-            rng = RngSource::new(header.number as i64 / snap.turn_length as i64);
-        }
+        let mut rng = if self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) {
+            RngSource::new(header.number as i64 / snap.turn_length as i64)
+        } else {
+            RngSource::new(snap.block_number as i64)
+        };
+
         let mut back_off_steps: Vec<u64> = (0..validators.len() as u64).collect();
         back_off_steps.shuffle(&mut rng);
 
@@ -506,14 +508,12 @@ impl Parlia {
         }
 
         if self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) {
-            if !header.parent_beacon_block_root.is_some()
-                || header.parent_beacon_block_root.unwrap() != B256::default() {
+            if header.parent_beacon_block_root.is_none() ||
+                header.parent_beacon_block_root.unwrap() != B256::default() {
                 return Err(ConsensusError::ParentBeaconBlockRootUnexpected)
             }
-        } else {
-            if header.parent_beacon_block_root.is_some() {
-                return Err(ConsensusError::ParentBeaconBlockRootUnexpected)
-            }
+        } else if header.parent_beacon_block_root.is_some() {
+            return Err(ConsensusError::ParentBeaconBlockRootUnexpected)
         }
 
         Ok(())

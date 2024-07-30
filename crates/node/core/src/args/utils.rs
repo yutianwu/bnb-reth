@@ -8,7 +8,7 @@ use std::{path::PathBuf, sync::Arc};
 use reth_chainspec::DEV;
 
 #[cfg(feature = "bsc")]
-use reth_primitives::{BSC_MAINNET, BSC_TESTNET, BSC_RIALTO};
+use reth_primitives::{BSC_MAINNET, BSC_RIALTO, BSC_TESTNET};
 
 #[cfg(feature = "optimism")]
 use reth_chainspec::{BASE_MAINNET, BASE_SEPOLIA, OP_MAINNET, OP_SEPOLIA};

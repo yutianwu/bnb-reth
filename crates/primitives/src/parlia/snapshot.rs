@@ -120,8 +120,8 @@ impl Snapshot {
 
         let epoch_key = u64::MAX - next_header.number / snap.epoch_num;
         if !new_validators.is_empty() &&
-            (!is_bohr || !snap.recent_proposers.contains_key(&epoch_key)) {
-
+            (!is_bohr || !snap.recent_proposers.contains_key(&epoch_key))
+        {
             new_validators.sort();
             if let Some(turn_length) = turn_length {
                 snap.turn_length = turn_length;
@@ -179,7 +179,8 @@ impl Snapshot {
 
     /// Returns the validator who should propose the block
     pub fn inturn_validator(&self) -> Address {
-        self.validators[((self.block_number + 1) as usize) / self.turn_length as usize % self.validators.len()]
+        self.validators
+            [((self.block_number + 1) as usize) / self.turn_length as usize % self.validators.len()]
     }
 
     /// Return index of the validator's index in validators list
@@ -192,7 +193,8 @@ impl Snapshot {
         None
     }
 
-    /// Returns the map of the number of times each validator has signed a block in the recent blocks
+    /// Returns the map of the number of times each validator has signed a block in the recent
+    /// blocks
     pub fn count_recent_proposers(&self) -> HashMap<Address, u8> {
         let left_history_bound = if self.block_number > self.miner_history_check_len() {
             self.block_number - self.miner_history_check_len()
@@ -217,7 +219,11 @@ impl Snapshot {
     }
 
     /// Returns true if the validator has signed a block in the recents blocks
-    pub fn sign_recently_by_counts(&self, validator: Address, counts: &HashMap<Address, u8>) -> bool {
+    pub fn sign_recently_by_counts(
+        &self,
+        validator: Address,
+        counts: &HashMap<Address, u8>,
+    ) -> bool {
         if let Some(&seen_times) = counts.get(&validator) {
             if seen_times >= self.turn_length {
                 return true;
