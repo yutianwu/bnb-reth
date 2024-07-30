@@ -86,6 +86,7 @@ impl Snapshot {
     }
 
     /// Apply the next block to the snapshot
+    #[allow(clippy::too_many_arguments)]
     pub fn apply(
         &self,
         validator: Address,
@@ -173,7 +174,7 @@ impl Snapshot {
 
     /// Returns the number of blocks after which the miner history should be checked
     pub fn miner_history_check_len(&self) -> u64 {
-        return (self.validators.len() / 2 + 1) as u64 * self.turn_length as u64 - 1
+        (self.validators.len() / 2 + 1) as u64 * self.turn_length as u64 - 1
     }
 
     /// Returns the validator who should propose the block
@@ -212,7 +213,7 @@ impl Snapshot {
 
     /// Returns true if the validator has signed a block in the last limit blocks
     pub fn sign_recently(&self, validator: Address) -> bool {
-        return self.sign_recently_by_counts(validator, &self.count_recent_proposers())
+        self.sign_recently_by_counts(validator, &self.count_recent_proposers())
     }
 
     /// Returns true if the validator has signed a block in the recents blocks
