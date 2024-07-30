@@ -163,13 +163,13 @@ where
                 BscBlockExecutionError::ParliaConsensusInnerError { error: err.into() }
             })?
         {
-            let turn_length_from_contract = self.get_turn_length(header, env.clone())?.unwrap();
+            let turn_length_from_contract = self.get_turn_length(header, env)?.unwrap();
             if turn_length_from_header == turn_length_from_contract {
                 return Ok(())
             }
         }
 
-        return Err(BscBlockExecutionError::MismatchingEpochTurnLengthError.into());
+        Err(BscBlockExecutionError::MismatchingEpochTurnLengthError.into())
     }
 
     fn get_turn_length(
@@ -179,7 +179,7 @@ where
     ) -> Result<Option<u8>, BlockExecutionError> {
         if self.chain_spec().is_bohr_active_at_timestamp(header.timestamp) {
             let (to, data) = self.parlia().get_turn_length();
-            let bz = self.eth_call(to, data, env.clone())?;
+            let bz = self.eth_call(to, data, env)?;
 
             let turn_length = self.parlia().unpack_data_into_turn_length(bz.as_ref()).to::<u8>();
             return Ok(Some(turn_length))
