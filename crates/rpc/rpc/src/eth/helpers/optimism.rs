@@ -14,7 +14,7 @@ use reth_rpc_types::{AnyTransactionReceipt, OptimismTransactionReceiptFields, To
 use reth_transaction_pool::TransactionPool;
 use revm::L1BlockInfo;
 use revm_primitives::{BlockEnv, ExecutionResult};
-
+use reth_chainspec::OptimismHardforks;
 use reth_rpc_eth_api::helpers::{LoadPendingBlock, LoadReceipt, SpawnBlocking};
 use reth_rpc_eth_types::{EthApiError, EthResult, EthStateCache, PendingBlock, ReceiptBuilder};
 use reth_rpc_server_types::result::internal_rpc_err;
@@ -109,7 +109,12 @@ where
 
         let block = block.unseal();
         let l1_block_info = reth_evm_optimism::extract_l1_info(&block).ok();
-        let optimism_tx_meta = self.build_op_tx_meta(&tx, l1_block_info, block.timestamp)?;
+        let mut optimism_tx_meta = self.build_op_tx_meta(&tx, l1_block_info, block.timestamp)?;
+
+        if self.inner.provider().chain_spec().is_wright_active_at_timestamp(block.timestamp) &&
+           tx.effective_gas_price(meta.base_fee) ==0 {
+            optimism_tx_meta.l1_fee = Some(0);
+        }
 
         let resp_builder = ReceiptBuilder::new(&tx, meta, &receipt, &receipts)?;
         let resp_builder = op_receipt_fields(resp_builder, &tx, &receipt, optimism_tx_meta);
