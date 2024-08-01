@@ -316,8 +316,8 @@ impl Parlia {
 
             // Exclude the recently signed validators and inturn validator
             validators.retain(|addr| {
-                !snap.sign_recently_by_counts(*addr, &counts) &&
-                    !(self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) &&
+                !(snap.sign_recently_by_counts(*addr, &counts) ||
+                    self.chain_spec.is_bohr_active_at_timestamp(header.timestamp) &&
                         *addr == inturn_addr)
             });
         }
