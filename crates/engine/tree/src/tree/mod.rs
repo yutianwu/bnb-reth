@@ -749,13 +749,14 @@ where
         if self.state.tree_state.canonical_block_hash() == state.head_block_hash {
             trace!(target: "engine", "fcu head hash is already canonical");
 
+            info!(target: "engine", ?self.state.tree_state.canonical_block_number(), ?attrs.is_some(), "on_forkchoice_updated");
+
             // update the safe and finalized blocks and ensure their values are valid
             if let Err(outcome) = self.ensure_consistent_forkchoice_state(state) {
                 // safe or finalized hashes are invalid
                 return Ok(TreeOutcome::new(outcome))
             }
 
-            info!(target: "engine", ?state.head_block_hash, ?attrs.is_some(), "on_forkchoice_updated");
             // we still need to process payload attributes if the head is already canonical
             if let Some(attr) = attrs {
                 let tip = self
