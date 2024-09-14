@@ -749,7 +749,8 @@ where
         if self.state.tree_state.canonical_block_hash() == state.head_block_hash {
             trace!(target: "engine", "fcu head hash is already canonical");
 
-            info!(target: "engine", ?self.state.tree_state.canonical_block_number(), ?attrs.is_some(), "on_forkchoice_updated");
+            let hash = state.head_block_hash;
+            info!(target: "engine", block=?self.state.tree_state.canonical_block_number(), block_hash=?state.head_block_hash, is_attrs = ?attrs.is_some(), "on_forkchoice_updated");
 
             // update the safe and finalized blocks and ensure their values are valid
             if let Err(outcome) = self.ensure_consistent_forkchoice_state(state) {
