@@ -765,6 +765,7 @@ where
                         ProviderError::HeaderNotFound(state.head_block_hash.into())
                     })?;
                 info!(target: "engine", "on_forkchoice_updated: 1");
+                return Ok(valid_outcome(state.head_block_hash));
                 let updated = self.process_payload_attributes(attr, &tip, state);
                 return Ok(TreeOutcome::new(updated))
             }
