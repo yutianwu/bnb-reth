@@ -755,6 +755,7 @@ where
                 return Ok(TreeOutcome::new(outcome))
             }
 
+            info!(target: "engine", ?state.head_block_hash, ?attrs.is_some(), "on_forkchoice_updated");
             // we still need to process payload attributes if the head is already canonical
             if let Some(attr) = attrs {
                 let tip = self
