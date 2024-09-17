@@ -668,6 +668,7 @@ where
                     let status = match status {
                         InsertPayloadOk2::Inserted(BlockStatus2::Valid) => {
                             latest_valid_hash = Some(block_hash);
+                            info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 2");
                             self.try_connect_buffered_blocks(num_hash)?;
                             PayloadStatusEnum::Valid
                         }
@@ -698,6 +699,8 @@ where
             outcome =
                 outcome.with_event(TreeEvent::TreeAction(TreeAction::MakeCanonical(block_hash)));
         }
+
+        info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 3");
 
         Ok(outcome)
     }
@@ -1724,6 +1727,7 @@ where
         info!(target: "engine", hash=?block.hash(), "insert_block_inner: 1");
 
         if self.block_by_hash(block.hash())?.is_some() {
+            info!(target: "engine", hash=?block.hash(), "insert_block_inner: AlreadySeen");
             return Ok(InsertPayloadOk2::AlreadySeen(BlockStatus2::Valid))
         }
 
