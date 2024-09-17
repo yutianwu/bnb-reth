@@ -596,7 +596,7 @@ where
     ) -> Result<TreeOutcome<PayloadStatus>, InsertBlockFatalError> {
         trace!(target: "engine", "invoked new payload");
         self.metrics.new_payload_messages.increment(1);
-
+        info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 1");
         // Ensures that the given payload does not violate any consensus rules that concern the
         // block's layout, like:
         //    - missing or invalid base fee
@@ -768,7 +768,7 @@ where
                         ProviderError::HeaderNotFound(state.head_block_hash.into())
                     })?;
                 info!(target: "engine", "on_forkchoice_updated: 1");
-                return Ok(valid_outcome(state.head_block_hash));
+                // return Ok(valid_outcome(state.head_block_hash));
                 let updated = self.process_payload_attributes(attr, &tip, state);
                 return Ok(TreeOutcome::new(updated))
             }
@@ -1710,6 +1710,8 @@ where
         &mut self,
         block: SealedBlockWithSenders,
     ) -> Result<InsertPayloadOk2, InsertBlockErrorTwo> {
+        info!(target: "engine", hash=?block.hash(), "insert_block: 1");
+
         self.insert_block_inner(block.clone())
             .map_err(|kind| InsertBlockErrorTwo::new(block.block, kind))
     }
@@ -1718,6 +1720,8 @@ where
         &mut self,
         block: SealedBlockWithSenders,
     ) -> Result<InsertPayloadOk2, InsertBlockErrorKindTwo> {
+        info!(target: "engine", hash=?block.hash(), "insert_block_inner: 1");
+
         if self.block_by_hash(block.hash())?.is_some() {
             return Ok(InsertPayloadOk2::AlreadySeen(BlockStatus2::Valid))
         }
@@ -1738,6 +1742,8 @@ where
                 .unwrap_or_else(|| block.parent_num_hash());
 
             self.state.buffer.insert_block(block);
+
+            info!(target: "engine", hash=?block.hash(), "insert_block_inner: 2");
 
             return Ok(InsertPayloadOk2::Inserted(BlockStatus2::Disconnected {
                 head: self.state.tree_state.current_canonical_head,
@@ -1774,7 +1780,7 @@ where
 
         let exec_time = Instant::now();
         let output = executor.execute((&block, U256::MAX, Some(&ancestor_blocks)).into())?;
-        debug!(target: "engine", elapsed=?exec_time.elapsed(), ?block_number, "Executed block");
+        info!(target: "engine", elapsed=?exec_time.elapsed(), ?block_number, "Executed block");
         self.consensus.validate_block_post_execution(
             &block,
             PostExecutionInput::new(&output.receipts, &output.requests),
@@ -1810,7 +1816,7 @@ where
         };
 
         if self.state.tree_state.canonical_block_hash() == executed.block().parent_hash {
-            debug!(target: "engine", pending = ?executed.block().num_hash() ,"updating pending block");
+            info!(target: "engine", pending = ?executed.block().num_hash() ,"updating pending block");
             // if the parent is the canonical head, we can insert the block as the pending block
             self.canonical_in_memory_state.set_pending_block(executed.clone());
         }
@@ -1818,12 +1824,20 @@ where
         self.state.tree_state.insert_executed(executed);
         self.metrics.executed_blocks.set(self.state.tree_state.block_count() as f64);
 
+        info!(target: "engine", hash=?block.number, "insert_block_inner: 2");
+
         // emit insert event
         let engine_event = if self.state.tree_state.is_fork(block_hash) {
+            info!(target: "engine", hash=?block.number, "insert_block_inner: 3");
+
             BeaconConsensusEngineEvent::ForkBlockAdded(sealed_block)
         } else {
+            info!(target: "engine", hash=?block.number, "insert_block_inner: 4");
+
             BeaconConsensusEngineEvent::CanonicalBlockAdded(sealed_block, start.elapsed())
         };
+        info!(target: "engine", hash=?block.number, "insert_block_inner: 5");
+
         self.emit_event(EngineApiEvent::BeaconConsensus(engine_event));
 
         Ok(InsertPayloadOk2::Inserted(BlockStatus2::Valid))
