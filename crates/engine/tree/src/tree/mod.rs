@@ -132,6 +132,8 @@ impl TreeState {
             return;
         }
 
+        info!(target: "consensus::engine", hash=?hash, "Inserting block into TreeState");
+
         self.blocks_by_hash.insert(hash, executed.clone());
 
         self.blocks_by_number.entry(block_number).or_default().push(executed);
@@ -937,6 +939,7 @@ where
             FromEngine::Request(request) => {
                 match request {
                     EngineApiRequest::InsertExecutedBlock(block) => {
+                        info!(target: "engine", hash=?block.block().hash(), "on_engine_message");
                         self.state.tree_state.insert_executed(block);
                     }
                     EngineApiRequest::Beacon(request) => {
