@@ -1720,6 +1720,7 @@ where
         &mut self,
         block: SealedBlockWithSenders,
     ) -> Result<InsertPayloadOk2, InsertBlockErrorKindTwo> {
+        let hash = block.number;
         info!(target: "engine", hash=?block.hash(), "insert_block_inner: 1");
 
         if self.block_by_hash(block.hash())?.is_some() {
@@ -1743,7 +1744,7 @@ where
 
             self.state.buffer.insert_block(block);
 
-            info!(target: "engine", hash=?block.hash(), "insert_block_inner: 2");
+            info!(target: "engine", hash=?hash, "insert_block_inner: 2");
 
             return Ok(InsertPayloadOk2::Inserted(BlockStatus2::Disconnected {
                 head: self.state.tree_state.current_canonical_head,
@@ -1824,19 +1825,19 @@ where
         self.state.tree_state.insert_executed(executed);
         self.metrics.executed_blocks.set(self.state.tree_state.block_count() as f64);
 
-        info!(target: "engine", hash=?block.number, "insert_block_inner: 2");
+        info!(target: "engine", hash=?hash, "insert_block_inner: 2");
 
         // emit insert event
         let engine_event = if self.state.tree_state.is_fork(block_hash) {
-            info!(target: "engine", hash=?block.number, "insert_block_inner: 3");
+            info!(target: "engine", hash=?hash, "insert_block_inner: 3");
 
             BeaconConsensusEngineEvent::ForkBlockAdded(sealed_block)
         } else {
-            info!(target: "engine", hash=?block.number, "insert_block_inner: 4");
+            info!(target: "engine", hash=?hash, "insert_block_inner: 4");
 
             BeaconConsensusEngineEvent::CanonicalBlockAdded(sealed_block, start.elapsed())
         };
-        info!(target: "engine", hash=?block.number, "insert_block_inner: 5");
+        info!(target: "engine", hash=?hash, "insert_block_inner: 5");
 
         self.emit_event(EngineApiEvent::BeaconConsensus(engine_event));
 
