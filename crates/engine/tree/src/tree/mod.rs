@@ -595,6 +595,7 @@ where
         cancun_fields: Option<CancunPayloadFields>,
     ) -> Result<TreeOutcome<PayloadStatus>, InsertBlockFatalError> {
         trace!(target: "engine", "invoked new payload");
+        let bhash = payload.block_hash();
         self.metrics.new_payload_messages.increment(1);
         info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 1");
         // Ensures that the given payload does not violate any consensus rules that concern the
@@ -668,7 +669,7 @@ where
                     let status = match status {
                         InsertPayloadOk2::Inserted(BlockStatus2::Valid) => {
                             latest_valid_hash = Some(block_hash);
-                            info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 2");
+                            info!(target: "engine", hash=?bhash, "on_new_payload: 2");
                             self.try_connect_buffered_blocks(num_hash)?;
                             PayloadStatusEnum::Valid
                         }
@@ -700,7 +701,7 @@ where
                 outcome.with_event(TreeEvent::TreeAction(TreeAction::MakeCanonical(block_hash)));
         }
 
-        info!(target: "engine", hash=?payload.block_hash(), "on_new_payload: 3");
+        info!(target: "engine", hash=?bhash, "on_new_payload: 3");
 
         Ok(outcome)
     }
@@ -1703,6 +1704,7 @@ where
         &mut self,
         block: SealedBlock,
     ) -> Result<InsertPayloadOk2, InsertBlockErrorTwo> {
+        info!(target: "engine", hash=?block.hash(), "insert_block_without_senders: 1");
         match block.try_seal_with_senders() {
             Ok(block) => self.insert_block(block),
             Err(block) => Err(InsertBlockErrorTwo::sender_recovery_error(block)),
