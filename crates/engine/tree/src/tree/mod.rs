@@ -1732,7 +1732,6 @@ where
         info!(target: "engine", hash=?block.hash(), "insert_block_inner: 1");
 
         if self.block_by_hash(block.hash())?.is_some() {
-            info!(target: "engine", hash=?block.hash(), "insert_block_inner: AlreadySeen");
             return Ok(InsertPayloadOk2::AlreadySeen(BlockStatus2::Valid))
         }
 
