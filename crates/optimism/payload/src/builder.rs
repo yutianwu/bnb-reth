@@ -25,7 +25,7 @@ use revm::{
     DatabaseCommit, State,
 };
 use std::sync::Arc;
-use tracing::{debug, trace, warn};
+use tracing::{debug, info, trace, warn};
 
 /// Optimism's payload builder
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -626,6 +626,7 @@ where
 
     // extend the payload with the blob sidecars from the executed txs
     payload.extend_sidecars(blob_sidecars);
+    info!(target: "payload_builder", payload.block.number, "sealed built block");
 
     Ok(BuildOutcome::Better { payload, cached_reads })
 }
