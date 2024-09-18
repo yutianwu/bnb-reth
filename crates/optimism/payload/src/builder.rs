@@ -626,7 +626,7 @@ where
 
     // extend the payload with the blob sidecars from the executed txs
     payload.extend_sidecars(blob_sidecars);
-    info!(target: "payload_builder", block=?payload.block.number, "sealed built block");
+    info!(target: "payload_builder", block=?payload.block.number, header=?payload.block().header, "sealed built block");
 
     Ok(BuildOutcome::Better { payload, cached_reads })
 }
