@@ -59,7 +59,7 @@ impl Default for RollupArgs {
             enable_genesis_walkback: false,
             compute_pending_block: false,
             discovery_v4: false,
-            experimental: false,
+            experimental: true,
             persistence_threshold: DEFAULT_PERSISTENCE_THRESHOLD,
             memory_block_buffer_target: DEFAULT_MEMORY_BLOCK_BUFFER_TARGET,
         }
